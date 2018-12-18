@@ -1,6 +1,7 @@
 # Blokus Game Solver - California Polytechnic State University CPE Senior Project
 Blokus AI Simulation Program  
-Setup and Idea are based on this Final Project: https://github.com/mknapper1/Machine-Learning-Blokus
+Setup and Idea are based on this Final Project: https://github.com/mknapper1/Machine-Learning-Blokus  
+**NOTE: This version is the code submitted for the Senior Project, the master branch has the most up-to-date version.**
 
 ## Project Goal
 Study the different strategies that can be used in the Blokus using AI simulation.  
