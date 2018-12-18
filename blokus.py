@@ -22,54 +22,49 @@ class Board:
                self.state[row][col] = player_id
 
    # Check if the point (y, x) is within the board's bound
-   def in_bounds(self, point):
+   def within_bounds(self, point):
       return 0 <= point[0] < self.ncol and 0 <= point[1] < self.nrow
 
    # Check if a piece placement overlap another piece on the board
    def overlap(self, placement):
-      return False in [(self.state[y][x] == '_') for x, y in placement]
+      for x, y in placement:
+         if self.state[y][x] != '_':
+            return True
+      return False
+
+   # check whether a certain player occupies a specific board location
+   def occupy_square(self, x, y, player_id):
+      return self.within_bounds((x, y)) and self.state[y][x] == player_id
 
    # Checks if a piece placement is adjacent to any square on
    # the board which are occupied by the player proposing the move.
-   def adj(self, player_id, placement):
-      adjacents = []
-
+   def adjacent(self, player_id, placement):
       # Check left, right, up, down for adjacent square
       for x, y in placement:
-         if self.in_bounds((x + 1, y)):
-            adjacents += [self.state[y][x + 1] == player_id]
-         if self.in_bounds((x - 1, y)):
-            adjacents += [self.state[y][x - 1] == player_id]
-         if self.in_bounds((x, y - 1)):
-            adjacents += [self.state[y - 1][x] == player_id]
-         if self.in_bounds((x, y + 1)):
-            adjacents += [self.state[y + 1][x] == player_id]
-
-      return True in adjacents
+         if (self.occupy_square(x + 1, y, player_id) 
+            or self.occupy_square(x - 1, y, player_id)
+            or self.occupy_square(x, y - 1, player_id)
+            or self.occupy_square(x, y + 1, player_id)):
+            return True
+      return False
 
    # Check if a piece placement is cornering
    # any pieces of the player proposing the move.
    def corner(self, player_id, placement):
-      corners = []
-
       # check the corner square from the placement
       for x, y in placement:
-         if self.in_bounds((x + 1, y + 1)):
-            corners += [self.state[y + 1][x + 1] == player_id]
-         if self.in_bounds((x - 1, y - 1)):
-            corners += [self.state[y - 1][x - 1] == player_id]
-         if self.in_bounds((x + 1, y - 1)):
-            corners += [self.state[y - 1][x + 1] == player_id]
-         if self.in_bounds((x - 1, y + 1)):
-            corners += [self.state[y + 1][x - 1] == player_id]
-
-      return True in corners
+         if (self.occupy_square(x + 1, y + 1, player_id) 
+            or self.occupy_square(x - 1, y - 1, player_id)
+            or self.occupy_square(x + 1, y - 1, player_id)
+            or self.occupy_square(x - 1, y + 1, player_id)):
+            return True
+      return False
    
    # Print the current board layout
    def print_board(self):
       print("Current Board Layout:")
-      for row in range(len(self.state)):
-         for col in range(len(self.state[0])):
+      for row in range(self.nrow):
+         for col in range(self.ncol):
             print(" " + str(self.state[row][col]), end = '')
          print()
 
@@ -104,7 +99,7 @@ class Player:
          if piece.id == 'I1':
             self.score += 5 # bonus for putting the smallest piece last
       for c in piece.corners: # Add the player's available corners
-         if board.in_bounds(c) and not board.overlap([c]):
+         if board.within_bounds(c) and not board.overlap([c]):
             self.corners.add(c)
 
    # Get a unique list of all possible placements (Shape)
@@ -154,7 +149,7 @@ class Blokus:
       self.previous = 0  # previous total available moves from all players
       self.repeat = 0 # counter for how many times the total available moves are
                       # the same by checking previous round
-      self.win_player = 0 # winner
+      self.win_player = 0 # winner's id, 0 = a tied between players
 
    # Check for the winner (or tied) in the game and return the winner's id.
    # Or return nothing if the game can still progress
@@ -189,12 +184,12 @@ class Blokus:
    # adjacency, and corners.
    def valid_move(self, player, placement):
       if self.rounds < len(self.players): # Check for starting corner
-         return not ((False in [self.board.in_bounds(pt) for pt in placement])
+         return not ((False in [self.board.within_bounds(pt) for pt in placement])
             or self.board.overlap(placement)
             or not (True in [(pt in player.corners) for pt in placement]))
-      return not ((False in [self.board.in_bounds(pt) for pt in placement])
+      return not ((False in [self.board.within_bounds(pt) for pt in placement])
          or self.board.overlap(placement)
-         or self.board.adj(player.id, placement)
+         or self.board.adjacent(player.id, placement)
          or not self.board.corner(player.id, placement))
 
    # Play the game with the list of player sequentially until the
@@ -226,8 +221,7 @@ class Blokus:
             else: # end the game if an invalid move is proposed
                raise Exception("Invalid move by player " + str(current.id))
          # put the current player to the back of the queue
-         first = self.players.pop(0)
-         self.players += [first] 
+         self.players = self.players[1:] + self.players[:1]
          self.rounds += 1 # update game round
       else: # a winner (or tied) is found
          if len(winner) == 1: # if the game results in a winner
@@ -297,10 +291,8 @@ def Greedy_Player_Two(player, game):
             average = total / len(opponents) # average corner difference
             weights += [(possible, 2 * piece.size + average)]
    weights.sort(key = lambda x: x[1], reverse = True) # sort by highest weight
-   if len(weights) != 0:
-      return weights[0][0] # get the highest weighted placement
-   else:
-      return None # no possible move left
+   # get the highest weighted placement if there are possible moves left
+   return None if len(weights) == 0 else weights[0][0]
 
 # Play a game of blokus without showing the board
 def test_blokus(blokus):
@@ -332,39 +324,47 @@ def play_blokus(blokus):
       print('=================================================================')
 
 # run multiple blokus games with a strategy for each player
-# Precondition: Only two players
-def multi_run(printout, repeat, one, two):
-   winner = {1 : 0, 2 : 0} # player one and two's scores
+# default configuration: 14 by 14 board with 100 matches in a game
+#                        no print out of board every round
+#                        two players with random strategies
+def simulate(row = 14, col = 14, repeat = 100, printout = False,
+   *players):
+   if not (1 < len(players) < 5):
+      print('Total players need to be between 2 to 4!')
+      return
+
+   winner = {} # players' total win counts
+   for i in range(len(players)):
+      winner[i + 1] = 0
    for i in range(repeat): # Play multiple times
       print("New Game " + str(i))
       order = []
-      first = Player(1, one) # first player
-      second = Player(2, two) # second player
+      for index, strategy in enumerate(players, 1):
+         order += [Player(index, strategy)] # total players in order
       all_pieces = [shape.I1(), shape.I2(), shape.I3(), shape.I4(), shape.I5(),
                   shape.V3(), shape.L4(), shape.Z4(), shape.O4(), shape.L5(),
                   shape.T5(), shape.V5(), shape.N(), shape.Z5(), shape.T4(),
                   shape.P(), shape.W(), shape.U(), shape.F(), shape.X(),
                   shape.Y()] # set up all the initial game pieces
-      board = Board(14, 14) # 14 by 14 board
-      order = [first, second] # order of the player in the game
+      board = Board(row, col) # 14 by 14 board
       blokus = Blokus(order, board, all_pieces)
-      if printout: # print or not print the board each round
-         play_blokus(blokus)
-      else:
-         test_blokus(blokus)
+
+      # print the board every round if desired
+      play_blokus(blokus) if printout else test_blokus(blokus)
 
       blokus.board.print_board() # print the final board
       blokus.play()
-      print("Final Score:")
+      print('Final Score:')
       plist = sorted(blokus.players, key = lambda p: p.id)
 
       for player in plist:
-         print("Player " + str(player.id) + ": " + str(player.score))
+         print('Player ' + str(player.id) + ': ' + str(player.score))
       if blokus.win_player > 0: # if there is a winner, not a tie
          winner[blokus.win_player] += 1 # update the winner's win count
       # print players' win count
-      print("Player one win count: " + str(winner[1]))
-      print("Player two win count: " + str(winner[2]))
+      for player_id in winner:
+         print('Player ' + str(player_id) + ' win count: '
+            + str(winner[player_id]))
       print()
 
 
@@ -374,10 +374,14 @@ def main():
       printout = True
    print("Senior Project Blokus Game")
 
-   # For the project, play each competition for 100 games
-   # Three possible strategies in the game:
-   # Random_Player, Greedy_Player, Greedy_Player_Two
-   multi_run(printout, 100, Random_Player, Greedy_Player_Two)
+   # Simulation setup
+   # - board size: # of rows (row), # of cols (col)
+   # - total matches: repeat
+   # - print board status every round: printout
+   # - total players + their strategies: *players
+   # - method signature: simulate(row, col, repeat, printout, *players)
+   simulate(20, 20, 1, printout,
+      Random_Player, Greedy_Player_Two, Greedy_Player, Random_Player)
 
 
 if __name__ == '__main__':
