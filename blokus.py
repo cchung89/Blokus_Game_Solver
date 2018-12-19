@@ -107,7 +107,7 @@ class Player:
    def possible_moves(self, pieces, game):
       # Updates the corners of the player, in case the
       # corners have been covered by another player's pieces.
-      self.corners = set([(x, y) for (x, y) in self.corners
+      self.corners = set([(x, y) for x, y in self.corners
          if game.board.state[y][x] == '_'])
 
       placements = [] # a list of possible placements (Shape)
@@ -166,7 +166,7 @@ class Blokus:
 
       # if there is still moves possible or total available moves remain
       # static for too many rounds (repeat reaches over a certain threshold)
-      if False in [len(mv) == 0 for mv in moves] and self.repeat < 4:
+      if False in [len(mv) == 0 for mv in moves] or self.repeat >= 4:
          self.previous = sum([len(mv) for mv in moves])
          return None # Nothing to return to continue the game
       else: # No more move available, the game ends

@@ -4,7 +4,8 @@ Setup and Idea are based on this Final Project: https://github.com/mknapper1/Mac
 
 ## Project Goal
 Study the different strategies that can be used in the Blokus using AI simulation.  
-For this project, the Blokus version will be based on the Blokus Duo, which have 2 players with 14 by 14 board size.
+For the Senior project, the Blokus version will be based on the Blokus Duo, which have 2 players with 14 by 14 board size.  
+For the development of this entire project, it's purpose is to allow gameplay of different Blokus version with different amount of players, like the original 4-players 20 by 20 board game.
 
 ## Functionality
 * Board size can be changed (14 by 14 for the project, 20 by 20 for the standard Blokus 4 player game)
@@ -47,3 +48,18 @@ For this project, the Blokus version will be based on the Blokus Duo, which have
 * For two players using the same strategy, the first player will have higher winning ratio
 * **Greedy** strategy is generally more effective than **Random**
 * **Simple Greedy** strategy is more effective than **Advanced Greedy** strategy
+
+## Time and Space Complexity
+* The more available corners a player has, the more possible moves a player can have overall
+* For each turn, each player has to find all the possible board placements from each available piece the player has
+* A player can have at most 21 pieces available to choose from
+* Each piece has its total amount of reference points based on its size (a piece of size 5 has 5 available reference points)
+* Each piece has at most 8 orientations from a single reference point (flip + rotation)
+* It is computationally expensive to get all the next possible moves (At least exponential)
+* The complete search trees for the piece placements are too large for strategies like Minimax, which involved saving game states, to be effective (At best, probably only 2 or 3 level depth search tree with alpha-beta pruning involved)
+
+## Future Goal
+* Develop more complex and effective strategies for the AIs
+* Increase the algorithm efficiency to speed up simulation
+* Allow the human player to play against an AI player
+* Allow human players to player against each other
