@@ -3,9 +3,9 @@ Blokus AI Simulation Program
 Setup and Idea are based on this Final Project: https://github.com/mknapper1/Machine-Learning-Blokus
 
 ## Project Goal
-Study the different strategies that can be used in the Blokus using AI simulation.  
-For the Senior project, the Blokus version will be based on the Blokus Duo, which have 2 players with 14 by 14 board size.  
-For the development of this entire project, it's purpose is to allow gameplay of different Blokus version with different amount of players, like the original 4-players 20 by 20 board game.
+* Study the different strategies that can be used in the Blokus using AI simulation.
+* For the Senior project, the Blokus version will be based on the Blokus Duo, which have 2 players with 14 by 14 board size.
+* For the development of this entire project, it's purpose is to allow gameplay of different Blokus version with different amount of players, like the original 4-players 20 by 20 board game.
 
 ## Functionality
 * Board size can be changed (14 by 14 for the project, 20 by 20 for the standard Blokus 4 player game)
