@@ -1,7 +1,7 @@
 # Simulation Photos
-Total of 9 game simulations on a 14 by 14 board  
-100 matches are played in each game  
-There is one 4-players game simulation with only one match
+* Total of 9 game simulations on a 14 by 14 board  
+* 100 matches are played in each game  
+* There is one 4-players game simulation with only one match
 
 ## Photo References
 * The name is in the format of `{firstplayer}v{secondplayer}` except the 4-players version
