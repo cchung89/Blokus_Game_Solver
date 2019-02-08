@@ -1,5 +1,6 @@
 # Blokus Game Solver - California Polytechnic State University CPE Senior Project
-Blokus AI Simulation Program
+Blokus AI Simulation Program  
+Senior Project Report: [Details](https://digitalcommons.calpoly.edu/cpesp/290/)
 
 ## Project Goal
 * Study the different strategies that can be used in the Blokus using AI simulation.
